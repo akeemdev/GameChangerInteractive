@@ -1,8 +1,30 @@
-const ATTR_STRENGTH = "strength";
-const ATTR_DEXTERITY = "dexterity";
-const ATTR_MIND = "mind";
-const ATTR_PRESENCE = "presence";
+/**
+ * There are 8 Classes Used for this project.
+ * - Utility : Utility functions that are used several times for the project.
+ * - Player : Player Object. This contains player's name and character setting.
+ * - Character : Character Object with 4 Attribute Object ( Strength, Dexterity, Mind, Presence ).
+ *               Character Object has its base Attribute which determines hero's skill set. Like if baseAttr is Strength, then he can have skills like `Fighting`
+ *               Character Object also contains CombatAttribute Object for storing ('vitality', 'evasion', 'armor', 'alacrity', 'tenacity', 'power')
+ *               Character Object can contains multiple traits (For example, strength minimum value is 10, This character has a bow so Fighting Rank + 1 etc) 
+ *                      and equipments like Bow which adds 3 power to the character etc.
+ * - CombatAttribute : Used for storing character's 'vitality', 'evasion', 'armor', 'alacrity', 'tenacity', 'power'
+ * - Attribute : Strength, Dexterity, Mind, Presence.
+ * - Skill : Several Skills, fight, thievery, stealth etc...
+ * - Equipment : Currently we have EQUIP_CHEST_ARMOR, and EQUIP_BOW
+ * - Trait : Currently we have TRAIT_FIGHTER (Skill Fighting Rank + 1), TRAIT_HOLDING_BOW (Evasion + 2), TRAIT_STRENGTH (Strength + 5, Dexterity + 2, Mind + 1, Presence + 3)
+ */
 
+/**
+ * Attributes Type Constant
+ */
+const ATTR_STRENGTH = "strength"; // vitality = strength + 3
+const ATTR_DEXTERITY = "dexterity"; // evasion = 10 + dexterity
+const ATTR_MIND = "mind"; // alacrity = mind
+const ATTR_PRESENCE = "presence"; // alacrity = presence, tenacity = 1 + presence
+
+/**
+ * Skill Rank Constant
+ */
 const SKILL_RANK_UNTRAINED = 0;
 const SKILL_RANK_NOVICE = 1;
 const SKILL_RANK_APPRENTICE = 2;
@@ -10,6 +32,9 @@ const SKILL_RANK_ADEPT = 3;
 const SKILL_RANK_EXPERT = 4;
 const SKILL_RANK_MASTER = 5;
 
+/**
+ * Skill Type Constant
+ */
 const SKILL_FIGHTING = "fight";
 const SKILL_THIEVERY = "thievery";
 const SKILL_STEALTH = "stealth";
@@ -24,25 +49,46 @@ const SKILL_MANIPULATION = "manipulation";
 const SKILL_INSIGHT = "insight";
 const SKILL_POWER = "power";
 
+/**
+ * Equipment Slot Types. 
+ */
 const EQUIP_SLOT_ARMOR = "equip_slot_armor";
 const EQUIP_SLOT_WEAPON = "equip_slot_weapon";
 
+/**
+ * Constant for Slot's equipment limitation
+ */
 const CHARACTER_EQUIP_SLOT_LIMIT = {
     [EQUIP_SLOT_ARMOR]: 1,
     [EQUIP_SLOT_WEAPON]: 3
 }
 
+/**
+ * Equipment Type Chest Armor Constant
+ * Gives Additional 1 Armor
+ */
 const EQUIP_CHEST_ARMOR = "equip_chest_armor";
+/**
+ * Equipment Type Bow Constant
+ * Gives Additional 3 Power
+ */
 const EQUIP_BOW = "equip_bow";
 
+/**
+ * Mapper for showing which equipment can be in which slot
+ */
 const EQUIP_SLOT_MAP = {
     [EQUIP_SLOT_ARMOR]: [
         EQUIP_CHEST_ARMOR
     ],
     [EQUIP_SLOT_WEAPON]: [
+        EQUIP_BOW
     ]
 }
 
+/**
+ * Mapper for what attribute can have what skills.
+ */
 const ATTR_SKILL_MAP = {
     [ATTR_STRENGTH]: [
         SKILL_FIGHTING
@@ -61,10 +107,16 @@ const ATTR_SKILL_MAP = {
     ]
 };
 
-const TRAIT_STRENGTH = "trait_strength";
-const TRAIT_HOLDING_BOW = "trait_holding_bow";
-const TRAIT_FIGHTER = "trait_fighter";
+/**
+ * Trait Types
+ */
+const TRAIT_STRENGTH = "trait_strength"; // Additional Strength + 5, Dexterity + 2, Mind + 1, Presence + 3
+const TRAIT_HOLDING_BOW = "trait_holding_bow"; // Additional Evasion + 2
+const TRAIT_FIGHTER = "trait_fighter"; // Add Bonus Rank to Fighting Skill
 
+/**
+ * Utility class used for getting global constants and frequent functions
+ */
 class Utility {
     static getInstance() {
         if (!window.utility) {
@@ -87,7 +139,7 @@ class Utility {
     }
 
     randomBetween(left, right) {
-        return Math.floor(Math.random() * right) + left
+        return Math.floor(Math.random() * right) + left;
     }
 
     clone(obj) {
@@ -117,6 +169,10 @@ class Utility {
       }
 }
 
+/**
+ * Main Player Objects. Can change name, export and import.
+ * This will render html to a DOM element
+ */
 class Player {
     constructor(name) {
         this.name = name || "";
@@ -155,6 +211,10 @@ class Player {
         this.character.refresh();
     }
 
+    /**
+     * Render HTML into dom object with id
+     * @param {*} id 
+     */
     render(id) {
         this.domID = id;
         const html = `
@@ -171,11 +231,19 @@ class Player {
         document.getElementById(id).innerHTML = html;
     }
 
+    /**
+     * Refresh UI for Player Info
+     */
     refresh() {
         this.render(this.domID);
     }
 }
 
+/**
+ * Character Object.
+ * It has baseAttribute, name, equipments, and traits. 
+ * According to baseAttribute, Skills will be determined, Additional equipments and traits will give bonus value to Attributes and Combat Attributes
+ */
 class Character {
     constructor(name, baseAttribute, equipments = [], traits = []) {
         this.attributes = {
@@ -237,7 +305,7 @@ class Character {
     }
 
     /**
-     * Get Combat Attribute based on attribute value
+     * Get Combat Attribute of Character
      */
     fetchCombat() {
         this.combatAttribute = CombatAttribute.merge(
@@ -249,6 +317,9 @@ class Character {
         return this.combatAttribute;
     }
 
+    /**
+     * Get All Attributes combining traits and its base attributes
+     */
     fetchAttributes() {
         let result = {};
         Object.values(this.attributes).map(attribute => {
@@ -393,6 +464,9 @@ class Character {
     }
 }
 
+/**
+ * Combat Attribute
+ */
 class CombatAttribute {
     constructor() {
         this.vitality = 0;
