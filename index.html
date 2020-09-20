@@ -1,0 +1,82 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+        <link rel="stylesheet" href="./style.css">
+    </head>
+    <body>
+        <div class="container mt-5">
+            <div id="player"></div>
+            <button class="mt-2" onclick="changeName()">Change Name</button>
+            <button class="mt-2" onclick="takeDamage()">Take Damage</button>
+            <button class="mt-2" onclick="exportPlayer()">Export</button>
+            <button class="mt-2" onclick="importPlayer()">Import</button>
+            <div id="character"></div>
+        </div>
+    </body>
+    <script src="./main.js"></script>
+    <script>
+        const player = new Player("Invoker");
+        player.render('player');
+
+        const character = new Character("Character1", ATTR_STRENGTH, [
+            new Equipment(EQUIP_CHEST_ARMOR), // Armor + 1
+            new Equipment(EQUIP_BOW), // Power + 3
+        ], [
+            new Trait(TRAIT_FIGHTER), // Skill Fighting Rank + 1
+            new Trait(TRAIT_HOLDING_BOW), // Evasion + 2
+            new Trait(TRAIT_STRENGTH) // Strength + 5, Dexterity + 2, Mind + 1, Presence + 3
+        ]);
+
+        character.render('character');
+        player.setCharacter(character);
+        // character.takeDamage(3);
+
+        
+        function changeName() {
+            var name = prompt("Enter New Name...", player.name);
+            if (name != null) { 
+                player.setName(name);
+                player.refresh();
+            }
+        }
+
+        function changeAttribute(type) {
+            var value = prompt(`Enter ${type}...`, character.getAttributeBy(type).get()); 
+            if (value != null) { 
+                character.setAttributeBy(type, value);
+            }
+            character.refresh();
+        }
+
+        function refreshSkillValue(type) {
+            character.getSkillByType(type).fetchLevel(true);
+            character.refresh();
+        }
+
+        function setAsBaseAttribute(type) {
+            character.setBaseAttributeType(type);
+            character.update(true);
+            character.refresh();
+        }
+
+        function takeDamage() {
+            var value = prompt(`Enter Damage`, 0); 
+            if (value != null) { 
+                character.takeDamage(parseInt(value));
+            }
+            character.refresh();
+        }
+
+        function exportPlayer() {
+            player.export();
+        }
+
+        function importPlayer() {
+            player.import();
+        }
+    </script>
+</html>
