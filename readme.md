@@ -1,11 +1,3 @@
-## Overview
-The purpose of this project is to show development style. Do not focus on being feature complete, but on well structured and robust code execution and data manipulation.
-
-Acceptible frameworks that can be used for this project
-- Pure HTML/CSS/JS (No framework)
-- Angular
-- Mithril
-
 ## Specifications
 
  - Minimum viable product
